@@ -160,6 +160,7 @@ func (br *Connector) Init(bridge *bridgev2.Bridge) {
 		event.BeeperSendState,
 		event.StateRoomAvatar,
 		event.StateTopic,
+		event.StatePinnedEvents,
 		event.StateTombstone,
 		event.StateBeeperDisappearingTimer,
 		event.BeeperDeleteChat,
