@@ -299,6 +299,19 @@ type PortalBridgeInfoFillingNetwork interface {
 	FillPortalBridgeInfo(portal *Portal, content *event.BridgeEventContent)
 }
 
+// CustomEventTypesProvider is an optional interface that network connectors can implement
+// to have additional Matrix event types forwarded to the network.
+//
+// GetCustomMatrixEventTypes is called during bridge initialization, before the network
+// connector's Init method, so the response should be a hardcoded list.
+type CustomEventTypesProvider interface {
+	NetworkConnector
+	// GetCustomMatrixEventTypes returns the Matrix event types that the connector wants to handle.
+	// The Matrix connector registers these with the appservice event processor, and the portal
+	// event loop dispatches them to [CustomEventHandlingNetworkAPI.HandleMatrixCustomEvent].
+	GetCustomMatrixEventTypes() []event.Type
+}
+
 // ConfigValidatingNetwork is an optional interface that network connectors can implement to validate config fields
 // before the bridge is started.
 //
@@ -756,6 +769,17 @@ type MuteHandlingNetworkAPI interface {
 type TagHandlingNetworkAPI interface {
 	NetworkAPI
 	HandleRoomTag(ctx context.Context, msg *MatrixRoomTag) error
+}
+
+// CustomEventHandlingNetworkAPI is an optional interface that network connectors can implement
+// to handle Matrix events with types that don't have a dedicated handler interface. The types
+// must be declared through [CustomEventTypesProvider.GetCustomMatrixEventTypes] to be delivered.
+type CustomEventHandlingNetworkAPI interface {
+	NetworkAPI
+	// HandleMatrixCustomEvent is called for events of the types declared by the connector.
+	// The central bridge module doesn't parse the content; the connector can add its own
+	// entries to event.TypeMap or read the raw fields from [MatrixCustomEvent.Content].
+	HandleMatrixCustomEvent(ctx context.Context, msg *MatrixCustomEvent) error
 }
 
 // RoomNameHandlingNetworkAPI is an optional interface that network connectors can implement to handle room name changes.
@@ -1524,6 +1548,12 @@ type MatrixEventBase[ContentType any] struct {
 	OrigSender *OrigSender
 
 	InputTransactionID networkid.RawTransactionID
+}
+
+// MatrixCustomEvent contains a Matrix event whose type was declared by the network
+// connector through [CustomEventTypesProvider.GetCustomMatrixEventTypes].
+type MatrixCustomEvent struct {
+	MatrixEventBase[*event.Content]
 }
 
 type MatrixMessage struct {
