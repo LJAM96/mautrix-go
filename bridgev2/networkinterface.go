@@ -821,6 +821,15 @@ type PinnedEventsHandlingNetworkAPI interface {
 	HandleMatrixRoomPinnedEvents(ctx context.Context, msg *MatrixRoomPinnedEvents) (bool, error)
 }
 
+// JoinRuleHandlingNetworkAPI is an optional interface that network connectors can implement
+// to handle changes to the join rule of a portal room.
+type JoinRuleHandlingNetworkAPI interface {
+	NetworkAPI
+	// HandleMatrixJoinRule is called when the m.room.join_rules state event changes.
+	// The new rule is in msg.Content and the previous rule is in msg.PrevContent.
+	HandleMatrixJoinRule(ctx context.Context, msg *MatrixJoinRuleChange) (bool, error)
+}
+
 type DisappearTimerChangingNetworkAPI interface {
 	NetworkAPI
 	// HandleMatrixDisappearingTimer is called when the disappearing timer of a portal room is changed.
@@ -1627,6 +1636,7 @@ type MatrixRoomName = MatrixRoomMeta[*event.RoomNameEventContent]
 type MatrixRoomAvatar = MatrixRoomMeta[*event.RoomAvatarEventContent]
 type MatrixRoomTopic = MatrixRoomMeta[*event.TopicEventContent]
 type MatrixRoomPinnedEvents = MatrixRoomMeta[*event.PinnedEventsEventContent]
+type MatrixJoinRuleChange = MatrixRoomMeta[*event.JoinRulesEventContent]
 type MatrixDisappearingTimer = MatrixRoomMeta[*event.BeeperDisappearingTimer]
 
 type MatrixReadReceipt struct {
