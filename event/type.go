@@ -113,7 +113,8 @@ func (et *Type) GuessClass() TypeClass {
 		StatePinnedEvents.Type, StateTombstone.Type, StateEncryption.Type, StateBridge.Type, StateHalfShotBridge.Type,
 		StateSpaceParent.Type, StateSpaceChild.Type, StatePolicyRoom.Type, StatePolicyServer.Type, StatePolicyUser.Type,
 		StateElementFunctionalMembers.Type, StateBeeperRoomFeatures.Type, StateBeeperDisappearingTimer.Type,
-		StateMSC4391BotCommand.Type, StateRoomPolicy.Type, StateImagePack.Type, StateUnstableImagePack.Type:
+		StateMSC4391BotCommand.Type, StateRoomPolicy.Type, StateImagePack.Type, StateUnstableImagePack.Type,
+		StateBeaconInfo.Type, StateUnstableBeaconInfo.Type:
 		return StateEventType
 	case EphemeralEventReceipt.Type, EphemeralEventTyping.Type, EphemeralEventPresence.Type:
 		return EphemeralEventType
@@ -130,7 +131,8 @@ func (et *Type) GuessClass() TypeClass {
 		CallInvite.Type, CallCandidates.Type, CallAnswer.Type, CallReject.Type, CallSelectAnswer.Type,
 		CallNegotiate.Type, CallHangup.Type, BeeperMessageStatus.Type, EventUnstablePollStart.Type, EventUnstablePollResponse.Type,
 		EventUnstablePollEnd.Type, BeeperTranscription.Type, BeeperViewLimitedMediaUpdate.Type,
-		BeeperDeleteChat.Type, BeeperBlockUser.Type, BeeperAcceptMessageRequest.Type:
+		BeeperDeleteChat.Type, BeeperBlockUser.Type, BeeperAcceptMessageRequest.Type,
+		EventBeacon.Type, EventUnstableBeacon.Type:
 		return MessageEventType
 	case ToDeviceRoomKey.Type, ToDeviceRoomKeyRequest.Type, ToDeviceForwardedRoomKey.Type, ToDeviceRoomKeyWithheld.Type,
 		ToDeviceBeeperRoomKeyAck.Type, ToDeviceBeeperStreamSubscribe.Type, ToDeviceBeeperStreamUpdate.Type:
@@ -213,6 +215,10 @@ var (
 	StateBeeperRoomFeatures       = Type{"com.beeper.room_features", StateEventType}
 	StateBeeperDisappearingTimer  = Type{"com.beeper.disappearing_timer", StateEventType}
 	StateMSC4391BotCommand        = Type{"org.matrix.msc4391.command_description", StateEventType}
+
+	// Live location beacons (MSC3489, MSC3672)
+	StateBeaconInfo         = Type{"m.beacon_info", StateEventType}
+	StateUnstableBeaconInfo = Type{"org.matrix.msc3672.beacon_info", StateEventType}
 )
 
 // Message events
@@ -252,6 +258,10 @@ var (
 	EventUnstablePollStart    = Type{Type: "org.matrix.msc3381.poll.start", Class: MessageEventType}
 	EventUnstablePollResponse = Type{Type: "org.matrix.msc3381.poll.response", Class: MessageEventType}
 	EventUnstablePollEnd      = Type{Type: "org.matrix.msc3381.poll.end", Class: MessageEventType}
+
+	// Live location beacons (MSC3489, MSC3672)
+	EventBeacon         = Type{"m.beacon", MessageEventType}
+	EventUnstableBeacon = Type{"org.matrix.msc3672.beacon", MessageEventType}
 )
 
 // Ephemeral events
