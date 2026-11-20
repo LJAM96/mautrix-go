@@ -56,6 +56,8 @@ var TypeMap = map[Type]reflect.Type{
 	StateElementFunctionalMembers: reflect.TypeFor[ElementFunctionalMembersContent](),
 	StateBeeperRoomFeatures:       reflect.TypeFor[RoomFeatures](),
 	StateBeeperDisappearingTimer:  reflect.TypeFor[BeeperDisappearingTimer](),
+	StateBeaconInfo:               reflect.TypeFor[BeaconInfoEventContent](),
+	StateUnstableBeaconInfo:       reflect.TypeFor[BeaconInfoEventContent](),
 
 	EventMessage:   reflect.TypeFor[MessageEventContent](),
 	EventSticker:   reflect.TypeFor[MessageEventContent](),
@@ -65,6 +67,8 @@ var TypeMap = map[Type]reflect.Type{
 
 	EventUnstablePollStart:    reflect.TypeFor[PollStartEventContent](),
 	EventUnstablePollResponse: reflect.TypeFor[PollResponseEventContent](),
+	EventBeacon:               reflect.TypeFor[BeaconEventContent](),
+	EventUnstableBeacon:       reflect.TypeFor[BeaconEventContent](),
 
 	BeeperMessageStatus:          reflect.TypeFor[BeeperMessageStatusEventContent](),
 	BeeperTranscription:          reflect.TypeFor[BeeperTranscriptionEventContent](),
@@ -339,6 +343,13 @@ func (content *Content) AsPinnedEvents() *PinnedEventsEventContent {
 	}
 	return casted
 }
+func (content *Content) AsBeaconInfo() *BeaconInfoEventContent {
+	casted, ok := content.Parsed.(*BeaconInfoEventContent)
+	if !ok {
+		return &BeaconInfoEventContent{}
+	}
+	return casted
+}
 func (content *Content) AsEncryption() *EncryptionEventContent {
 	casted, ok := content.Parsed.(*EncryptionEventContent)
 	if !ok {
@@ -399,6 +410,13 @@ func (content *Content) AsReaction() *ReactionEventContent {
 	casted, ok := content.Parsed.(*ReactionEventContent)
 	if !ok {
 		return &ReactionEventContent{}
+	}
+	return casted
+}
+func (content *Content) AsBeacon() *BeaconEventContent {
+	casted, ok := content.Parsed.(*BeaconEventContent)
+	if !ok {
+		return &BeaconEventContent{}
 	}
 	return casted
 }
