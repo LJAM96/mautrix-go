@@ -949,8 +949,35 @@ func (portal *Portal) handleMatrixEvent(ctx context.Context, sender *User, evt *
 	case event.BeeperAcceptMessageRequest:
 		return portal.handleMatrixAcceptMessageRequest(ctx, login, origSender, evt)
 	default:
+		// The Matrix connector only registers custom event types declared by the network
+		// connector, so any type reaching this point is meant for the custom handler.
+		return portal.handleMatrixCustomEvent(ctx, login, origSender, evt)
+	}
+}
+
+func (portal *Portal) handleMatrixCustomEvent(ctx context.Context, sender *UserLogin, origSender *OrigSender, evt *event.Event) EventHandlingResult {
+	log := zerolog.Ctx(ctx)
+	api, ok := sender.Client.(CustomEventHandlingNetworkAPI)
+	if !ok {
+		log.Debug().
+			Stringer("event_type", evt.Type).
+			Msg("Ignoring custom Matrix event as network connector doesn't implement CustomEventHandlingNetworkAPI")
 		return EventHandlingResultIgnored
 	}
+	err := api.HandleMatrixCustomEvent(ctx, &MatrixCustomEvent{
+		MatrixEventBase: MatrixEventBase[*event.Content]{
+			Event:              evt,
+			Content:            &evt.Content,
+			Portal:             portal,
+			OrigSender:         origSender,
+			InputTransactionID: portal.parseInputTransactionID(origSender, evt),
+		},
+	})
+	if err != nil {
+		log.Err(err).Stringer("event_type", evt.Type).Msg("Failed to handle Matrix custom event")
+		return EventHandlingResultFailed.WithMSSError(err)
+	}
+	return EventHandlingResultSuccess.WithMSS()
 }
 
 func (portal *Portal) handleMatrixReceipts(ctx context.Context, evt *event.Event) EventHandlingResult {

@@ -168,6 +168,11 @@ func (br *Connector) Init(bridge *bridgev2.Bridge) {
 	} {
 		br.EventProcessor.On(evtType, br.handleRoomEvent)
 	}
+	if provider, ok := bridge.Network.(bridgev2.CustomEventTypesProvider); ok {
+		for _, evtType := range provider.GetCustomMatrixEventTypes() {
+			br.EventProcessor.On(evtType, br.handleRoomEvent)
+		}
+	}
 	br.EventProcessor.On(event.EventEncrypted, br.handleEncryptedEvent)
 	br.EventProcessor.On(event.EphemeralEventReceipt, br.handleEphemeralEvent)
 	br.EventProcessor.On(event.EphemeralEventTyping, br.handleEphemeralEvent)
