@@ -812,6 +812,15 @@ type RoomTopicHandlingNetworkAPI interface {
 	HandleMatrixRoomTopic(ctx context.Context, msg *MatrixRoomTopic) (bool, error)
 }
 
+// PinnedEventsHandlingNetworkAPI is an optional interface that network connectors can implement
+// to handle changes to the list of pinned messages in a portal room.
+type PinnedEventsHandlingNetworkAPI interface {
+	NetworkAPI
+	// HandleMatrixRoomPinnedEvents is called when the m.room.pinned_events state event changes.
+	// The new list is in msg.Content and the previous list is in msg.PrevContent.
+	HandleMatrixRoomPinnedEvents(ctx context.Context, msg *MatrixRoomPinnedEvents) (bool, error)
+}
+
 type DisappearTimerChangingNetworkAPI interface {
 	NetworkAPI
 	// HandleMatrixDisappearingTimer is called when the disappearing timer of a portal room is changed.
@@ -1617,6 +1626,7 @@ type MatrixRoomMeta[ContentType any] struct {
 type MatrixRoomName = MatrixRoomMeta[*event.RoomNameEventContent]
 type MatrixRoomAvatar = MatrixRoomMeta[*event.RoomAvatarEventContent]
 type MatrixRoomTopic = MatrixRoomMeta[*event.TopicEventContent]
+type MatrixRoomPinnedEvents = MatrixRoomMeta[*event.PinnedEventsEventContent]
 type MatrixDisappearingTimer = MatrixRoomMeta[*event.BeeperDisappearingTimer]
 
 type MatrixReadReceipt struct {
